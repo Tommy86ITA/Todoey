@@ -11,18 +11,19 @@ import UIKit
 class TodoListViewController: UITableViewController {
 
     
-    // MARK: dichiarazione variabili di istanza:
+    //MARK: - dichiarazione variabili di istanza:
     
-    let itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
+   
+   var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
     
-    // MARK: viewDidLoad Function:
+    // MARK: - viewDidLoad Function:
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     }
 
-    // MARK: didReceiveMemoryWarning function
+    //MARK: - didReceiveMemoryWarning function
     //
     //    override func didReceiveMemoryWarning() {
     //        super.didReceiveMemoryWarning()
@@ -30,7 +31,7 @@ class TodoListViewController: UITableViewController {
     //    }
     
     
-    // MARK: TableView Datasource methods:
+    //MARK: - metodi di tableView Datasource:
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
@@ -46,7 +47,7 @@ class TodoListViewController: UITableViewController {
     }
     
     
-    // MARK: TableView Delegate Methods
+    //MARK: - metodi delegati di tableView
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
@@ -61,6 +62,33 @@ class TodoListViewController: UITableViewController {
         }
         
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    
+    //MARK: - azione aggiunta nuovo oggetto
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textField = UITextField()
+        
+        let alert = UIAlertController(title: "Aggiungi nuova voce a Todoey", message: "", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Aggiungi voce", style: .default) { (action) in
+            // cosa avviene quando l'utente clicca sul bottone "Aggiungi voce" nella UIAlert
+            
+            self.itemArray.append(textField.text ?? "Nuova voce")           //aggiungo il nuovo oggetto all'array
+            
+            self.tableView.reloadData()                                     //ricarico i dati nella tableView
+        }
+        
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Crea una nuova voce"
+            textField = alertTextField
+        }
+        alert.addAction(action)
+        
+        present(alert, animated: true, completion: nil)
+        
     }
     
     
