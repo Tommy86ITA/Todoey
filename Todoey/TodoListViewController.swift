@@ -16,11 +16,19 @@ class TodoListViewController: UITableViewController {
    
    var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
     
+    let defaults = UserDefaults.standard
+    
     // MARK: - viewDidLoad Function:
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         // Do any additional setup after loading the view, typically from a nib.
+        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+            
+            itemArray = items
+        }
+    
     }
 
     //MARK: - didReceiveMemoryWarning function
@@ -77,6 +85,8 @@ class TodoListViewController: UITableViewController {
             // cosa avviene quando l'utente clicca sul bottone "Aggiungi voce" nella UIAlert
             
             self.itemArray.append(textField.text ?? "Nuova voce")           //aggiungo il nuovo oggetto all'array
+            
+            self.defaults.set(self.itemArray, forKey: "TodoListArray")
             
             self.tableView.reloadData()                                     //ricarico i dati nella tableView
         }
