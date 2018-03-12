@@ -16,6 +16,12 @@ class TodoListViewController: UITableViewController {
     
     var itemArray = [Item]()
     
+    var selectedCategory : Category? {
+        didSet{
+            loadItems()                                 // carico i dati solo nel momento in cui a selectedCategory viene assegnato un valore
+        }
+    }
+    
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     
@@ -24,14 +30,12 @@ class TodoListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        loadItems()
-        
+      
         
         
     }
     
-    //MARK: - metodi di tableView Datasource:
+    //MARK: - metodi Datasource di tableView:
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
@@ -41,13 +45,13 @@ class TodoListViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        let item = itemArray[indexPath.row]
-        cell.textLabel?.text = item.title
+        //let item = itemArray[indexPath.row]
+        cell.textLabel?.text = itemArray[indexPath.row].title
         
         // Ternary operator ==>
         // value = condition ? valueIfTrue : valueIfFalse
         
-        cell.accessoryType = item.done ? .checkmark : .none
+        cell.accessoryType = itemArray[indexPath.row].done ? .checkmark : .none
         
         return cell
     }
@@ -71,9 +75,9 @@ class TodoListViewController: UITableViewController {
         
         var textField = UITextField()
         
-        let alert = UIAlertController(title: "Aggiungi nuova voce a Todoey", message: "", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Aggiungi nuovo Elemento a Todoey", message: "", preferredStyle: .alert)
         
-        let action = UIAlertAction(title: "Aggiungi voce", style: .default) { (action) in
+        let action = UIAlertAction(title: "Aggiungi", style: .default) { (action) in
             // cosa avviene quando l'utente clicca sul bottone "Aggiungi voce" nella UIAlert
             
             let itemToAdd = Item(context: self.context)
@@ -86,13 +90,14 @@ class TodoListViewController: UITableViewController {
             }
             
             itemToAdd.done = false
+            itemToAdd.parentCategory = self.selectedCategory
             self.itemArray.append(itemToAdd)                                //aggiungo il nuovo oggetto all'array
             
             self.saveItems()
         }
         
         alert.addTextField { (alertTextField) in
-            alertTextField.placeholder = "Crea una nuova voce"
+            alertTextField.placeholder = "Crea un nuovo elemento"
             textField = alertTextField
         }
         alert.addAction(action)
@@ -104,7 +109,7 @@ class TodoListViewController: UITableViewController {
     
     //MARK: - metodi manipolazione del modello
     
-    // Funzione di salvataggio degli oggetti
+    // Metodo di salvataggio degli oggetti
     
     func saveItems() {
         do {
@@ -116,12 +121,22 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()                                              //ricarico i dati nella tableView
     }
     
-    // Funzione per il caricamento dei dati
+    // Metodo per il caricamento dei dati
     // Richiede in ingresso un parametro request di tipo NSFetchRequest.
     // Se non viene specificato, il parametro di default è Item.fetchRequest
     
-    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
-       
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+        
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+        }
+        else {
+            request.predicate = categoryPredicate
+        }
+        
+        
         do {
             itemArray = try context.fetch(request)                          //Carico i dati che ho ottenuto nella itemArray
         } catch {
@@ -131,7 +146,7 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()                                              //ricarico i dati nella tableView
         
     }
-
+    
     
     // Funzione di cancellazione dei dati
     //
@@ -143,7 +158,7 @@ class TodoListViewController: UITableViewController {
     
 }
 
-    //MARK: - metodi della Search Bar
+//MARK: - metodi della Search Bar
 
 extension TodoListViewController: UISearchBarDelegate {
     
@@ -175,8 +190,10 @@ extension TodoListViewController: UISearchBarDelegate {
         if searchBar.text?.count == 0 {                                 // se nella searchBar non c'è nessun carattere....
             loadItems()                                                 // ricarica i dati
             
-            //DispatchQueue
-            searchBar.resignFirstResponder()                            // la searchBar cessa di essere il firstResponder, avvisando l'OS che può nascondere la tastiera
+            DispatchQueue.main.async {                                  // richiedo di utilizzare in modo asincorono il main thread tramite la dispatch queue
+                searchBar.resignFirstResponder()                        // la searchBar cessa di essere il firstResponder, avvisando l'OS che può nascondere la tastiera
+                
+            }
         }
     }
 }
