@@ -7,18 +7,18 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
     
     //MARK: - dichiarazione variabili di istanza:
     
-    //let defaults = UserDefaults.standard
-    
     var itemArray = [Item]()
     
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
-
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    
     
     // MARK: - viewDidLoad Function:
     
@@ -26,6 +26,8 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
         
         loadItems()
+        
+        
         
     }
     
@@ -58,6 +60,7 @@ class TodoListViewController: UITableViewController {
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
         saveItems()
+        
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
@@ -73,9 +76,16 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Aggiungi voce", style: .default) { (action) in
             // cosa avviene quando l'utente clicca sul bottone "Aggiungi voce" nella UIAlert
             
-            let itemToAdd = Item()
-            itemToAdd.title = textField.text!
+            let itemToAdd = Item(context: self.context)
             
+            if textField.text != "" {
+                itemToAdd.title = textField.text!
+            }
+            else {
+                itemToAdd.title = "Nuova voce"                              //Se il campo con il nome della nuova voce è vuoto, lo imposto come "Nuova voce"
+            }
+            
+            itemToAdd.done = false
             self.itemArray.append(itemToAdd)                                //aggiungo il nuovo oggetto all'array
             
             self.saveItems()
@@ -97,35 +107,77 @@ class TodoListViewController: UITableViewController {
     // Funzione di salvataggio degli oggetti
     
     func saveItems() {
-        
-        let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
-        }
-        catch {
-            print("Error encoding data, \(error)")
+            try context.save()                                              //salvo nel DB i dati contenuti nel context
+        } catch {
+            print("Error saving context: \(error)")
         }
         
         tableView.reloadData()                                              //ricarico i dati nella tableView
-
     }
     
     // Funzione per il caricamento dei dati
+    // Richiede in ingresso un parametro request di tipo NSFetchRequest.
+    // Se non viene specificato, il parametro di default è Item.fetchRequest
     
-    func loadItems() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-                itemArray = try decoder.decode([Item].self, from: data)
-            }
-            catch {
-                print("Error decoding item array, \(error)")
-            }
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
+       
+        do {
+            itemArray = try context.fetch(request)                          //Carico i dati che ho ottenuto nella itemArray
+        } catch {
+            print("Error fetching data from context: \(error)")
         }
+        
+        tableView.reloadData()                                              //ricarico i dati nella tableView
+        
     }
-    
 
     
+    // Funzione di cancellazione dei dati
+    //
+    //    func deleteItem() {
+    //        context.delete(itemArray[indexPath.row])
+    //        itemArray.remove(at: indexPath.row)
+    //    }
+    
+    
+}
+
+    //MARK: - metodi della Search Bar
+
+extension TodoListViewController: UISearchBarDelegate {
+    
+    // Metodo di ricerca
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        
+        //let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)   //cerca gli elementi che all'interno dell'attributo title CONTENGONO ciò che viene scritto nella searchbar (%@). [cd] indica che la ricerca non fa distinzione fra maiuscole e minuscole (non case-sensitive) e non considera i diacritici (é,è,à, ō...)
+        
+        
+        //let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)                              //scelgo di ordinare i risultati disponendoli secondo il titolo in ordine alfabetico
+        
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)                   //imposto la query...
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]                         //...e la regola di ordinamento dei risultati
+        
+        loadItems(with: request)                                                                            //Carico i dati che corrispondono alla mia request
+        
+        tableView.reloadData()                                                                              //ricarico i dati nella tableView
+        
+    }
+    
+    
+    // Metodo di ritorno
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        if searchBar.text?.count == 0 {                                 // se nella searchBar non c'è nessun carattere....
+            loadItems()                                                 // ricarica i dati
+            
+            //DispatchQueue
+            searchBar.resignFirstResponder()                            // la searchBar cessa di essere il firstResponder, avvisando l'OS che può nascondere la tastiera
+        }
+    }
 }
 
