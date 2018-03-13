@@ -7,22 +7,23 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class TodoListViewController: UITableViewController {
     
     
     //MARK: - dichiarazione variabili di istanza:
     
-    var itemArray = [Item]()
+    var itemArray: Results<Items>?
+    let realm = try! Realm()
     
     var selectedCategory : Category? {
         didSet{
+            
             loadItems()                                 // carico i dati solo nel momento in cui a selectedCategory viene assegnato un valore
         }
     }
     
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     
     
@@ -30,7 +31,7 @@ class TodoListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-      
+        
         
         
     }
@@ -63,7 +64,7 @@ class TodoListViewController: UITableViewController {
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
-        saveItems()
+        //saveItems()
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -125,25 +126,28 @@ class TodoListViewController: UITableViewController {
     // Richiede in ingresso un parametro request di tipo NSFetchRequest.
     // Se non viene specificato, il parametro di default è Item.fetchRequest
     
-    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+    func loadItems() {
         
-        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        itemArray = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+        tableView.reloadData()
         
-        if let additionalPredicate = predicate {
-            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
-        }
-        else {
-            request.predicate = categoryPredicate
-        }
+        //        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        //
+        //        if let additionalPredicate = predicate {
+        //            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+        //        }
+        //        else {
+        //            request.predicate = categoryPredicate
+        //        }
+        //
+        //
+        //        do {
+        //            itemArray = try context.fetch(request)                          //Carico i dati che ho ottenuto nella itemArray
+        //        } catch {
+        //            print("Error fetching data from context: \(error)")
+        //        }
         
-        
-        do {
-            itemArray = try context.fetch(request)                          //Carico i dati che ho ottenuto nella itemArray
-        } catch {
-            print("Error fetching data from context: \(error)")
-        }
-        
-        tableView.reloadData()                                              //ricarico i dati nella tableView
+        //ricarico i dati nella tableView
         
     }
     
@@ -160,41 +164,41 @@ class TodoListViewController: UITableViewController {
 
 //MARK: - metodi della Search Bar
 
-extension TodoListViewController: UISearchBarDelegate {
-    
-    // Metodo di ricerca
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
-        
-        //let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)   //cerca gli elementi che all'interno dell'attributo title CONTENGONO ciò che viene scritto nella searchbar (%@). [cd] indica che la ricerca non fa distinzione fra maiuscole e minuscole (non case-sensitive) e non considera i diacritici (é,è,à, ō...)
-        
-        
-        //let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)                              //scelgo di ordinare i risultati disponendoli secondo il titolo in ordine alfabetico
-        
-        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)                   //imposto la query...
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]                         //...e la regola di ordinamento dei risultati
-        
-        loadItems(with: request)                                                                            //Carico i dati che corrispondono alla mia request
-        
-        tableView.reloadData()                                                                              //ricarico i dati nella tableView
-        
-    }
-    
-    
-    // Metodo di ritorno
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
-        if searchBar.text?.count == 0 {                                 // se nella searchBar non c'è nessun carattere....
-            loadItems()                                                 // ricarica i dati
-            
-            DispatchQueue.main.async {                                  // richiedo di utilizzare in modo asincorono il main thread tramite la dispatch queue
-                searchBar.resignFirstResponder()                        // la searchBar cessa di essere il firstResponder, avvisando l'OS che può nascondere la tastiera
-                
-            }
-        }
-    }
-}
+//extension TodoListViewController: UISearchBarDelegate {
+//
+//    // Metodo di ricerca
+//
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//
+//        let request : NSFetchRequest<Item> = Item.fetchRequest()
+//
+//        //let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)   //cerca gli elementi che all'interno dell'attributo title CONTENGONO ciò che viene scritto nella searchbar (%@). [cd] indica che la ricerca non fa distinzione fra maiuscole e minuscole (non case-sensitive) e non considera i diacritici (é,è,à, ō...)
+//
+//
+//        //let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)                              //scelgo di ordinare i risultati disponendoli secondo il titolo in ordine alfabetico
+//
+//        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)                   //imposto la query...
+//        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]                         //...e la regola di ordinamento dei risultati
+//
+//        loadItems(with: request)                                                                            //Carico i dati che corrispondono alla mia request
+//
+//        tableView.reloadData()                                                                              //ricarico i dati nella tableView
+//
+//    }
+//
+//
+//    // Metodo di ritorno
+//
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//
+//        if searchBar.text?.count == 0 {                                 // se nella searchBar non c'è nessun carattere....
+//            loadItems()                                                 // ricarica i dati
+//
+//            DispatchQueue.main.async {                                  // richiedo di utilizzare in modo asincorono il main thread tramite la dispatch queue
+//                searchBar.resignFirstResponder()                        // la searchBar cessa di essere il firstResponder, avvisando l'OS che può nascondere la tastiera
+//
+//            }
+//        }
+//    }
+//}
 
