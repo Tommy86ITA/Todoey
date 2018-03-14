@@ -11,16 +11,15 @@ import RealmSwift
 
 class TodoListViewController: UITableViewController {
     
-    
     //MARK: - dichiarazione variabili di istanza:
     
-    var todoItems: Results<Item>?
-    let realm = try! Realm()
+    let realm = try! Realm()                    // inizializzo il punto di accesso al realm
+    
+    var todoItems: Results<Item>?               // inizializzo il contenitore per l'elenco degli elementi
     
     var selectedCategory : Category? {
         didSet{
-            
-            loadItems()                                 // carico i dati solo nel momento in cui a selectedCategory viene assegnato un valore
+            loadItems()               // carico i dati solo nel momento in cui a selectedCategory viene assegnato un valore
         }
     }
     
@@ -30,16 +29,17 @@ class TodoListViewController: UITableViewController {
     // MARK: - viewDidLoad Function:
     
     override func viewDidLoad() {
+        
         super.viewDidLoad()
-        
-        
         
     }
     
     //MARK: - metodi Datasource di tableView:
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return todoItems?.count ?? 1
+        
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -105,9 +105,8 @@ class TodoListViewController: UITableViewController {
                         else {
                             itemToAdd.title = "Nuova voce"                              //Se il campo con il nome della nuova voce è vuoto, lo imposto come "Nuova voce"
                         }
-                        
+                        itemToAdd.dateCreated = Date()
                         itemToAdd.done = false
-                        //itemToAdd.dateCreated = Date()
                         currentCategory.items.append(itemToAdd)
                     }
                 } catch {
@@ -129,48 +128,11 @@ class TodoListViewController: UITableViewController {
     }
 
 
-//MARK: - metodi manipolazione del modello
-
-// Metodo di salvataggio degli oggetti
-
-//    func saveItems(item: Item) {
-//        do {
-//            try realm.write()   {
-//                realm.add(item)
-//            }                                           //salvo nel DB i dati contenuti nel context
-//        } catch {
-//            print("Error saving to realm: \(error)")
-//        }
-//
-//        tableView.reloadData()                                              //ricarico i dati nella tableView
-//    }
-
-// Metodo per il caricamento dei dati
-// Richiede in ingresso un parametro request di tipo NSFetchRequest.
-// Se non viene specificato, il parametro di default è Item.fetchRequest
-
 func loadItems() {
     
-    todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+    todoItems = selectedCategory?.items.sorted(byKeyPath: "dateCreated", ascending: true)
     tableView.reloadData()
     
-    //        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
-    //
-    //        if let additionalPredicate = predicate {
-    //            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
-    //        }
-    //        else {
-    //            request.predicate = categoryPredicate
-    //        }
-    //
-    //
-    //        do {
-    //            todoItems = try context.fetch(request)                          //Carico i dati che ho ottenuto nella todoItems
-    //        } catch {
-    //            print("Error fetching data from context: \(error)")
-    //        }
-    
-    //ricarico i dati nella tableView
     
 }
 
@@ -193,14 +155,12 @@ extension TodoListViewController: UISearchBarDelegate {
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
 
-        todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "title", ascending: true)
+        todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
         
         //let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)   //cerca gli elementi che all'interno dell'attributo title CONTENGONO ciò che viene scritto nella searchbar (%@). [cd] indica che la ricerca non fa distinzione fra maiuscole e minuscole (non case-sensitive) e non considera i diacritici (é,è,à, ō...)
 
-
         //let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)  //scelgo di ordinare i risultati disponendoli secondo il titolo in ordine alfabetico
 
-        
         tableView.reloadData()                                             //ricarico i dati nella tableView
 
     }

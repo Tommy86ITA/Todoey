@@ -13,15 +13,15 @@ class CategoryViewController: UITableViewController {
     
     //MARK: - dichiarazione variabili di istanza:
     
-    let realm = try! Realm()
+    let realm = try! Realm()                // inizializzo il punto di accesso al realm
     
-    var categories : Results<Category>?
+    var categories : Results<Category>?     // inizializzo il contenitore per l'elenco delle categorie
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadCategories()
+        loadCategories()                    // carico dal realm l'elenco delle categorie
         
         
     }

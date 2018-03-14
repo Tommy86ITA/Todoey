@@ -11,7 +11,10 @@ import RealmSwift
 
 class Category: Object {
     
+    //MARK: - Attributi dell'oggetto
     @objc dynamic var name : String = ""
+    
+    //MARK: - Relazioni
     let items = List<Item>()   // Stabilisco la relazione diretta fra categoria e elementi
     
 }
