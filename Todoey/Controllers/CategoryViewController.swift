@@ -46,7 +46,7 @@ class CategoryViewController: UITableViewController {
             else {
                 categoryToAdd.name = "Nuova categoria"
             }
-            
+    
             self.save(category: categoryToAdd)
         }
         

@@ -14,7 +14,7 @@ class TodoListViewController: UITableViewController {
     
     //MARK: - dichiarazione variabili di istanza:
     
-    var itemArray: Results<Items>?
+    var todoItems: Results<Item>?
     let realm = try! Realm()
     
     var selectedCategory : Category? {
@@ -39,20 +39,24 @@ class TodoListViewController: UITableViewController {
     //MARK: - metodi Datasource di tableView:
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return itemArray.count
+        return todoItems?.count ?? 1
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        //let item = itemArray[indexPath.row]
-        cell.textLabel?.text = itemArray[indexPath.row].title
-        
-        // Ternary operator ==>
-        // value = condition ? valueIfTrue : valueIfFalse
-        
-        cell.accessoryType = itemArray[indexPath.row].done ? .checkmark : .none
+        if let item = todoItems?[indexPath.row] {
+            
+            cell.textLabel?.text = todoItems?[indexPath.row].title
+            
+            // Ternary operator ==>
+            // value = condition ? valueIfTrue : valueIfFalse
+            cell.accessoryType = item.done ? .checkmark : .none
+        }
+        else {
+            cell.textLabel?.text = "Non hai ancora aggiunto nessun elemento"
+        }
         
         return cell
     }
@@ -62,7 +66,7 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        //todoItems[indexPath.row].done = !todoItems[indexPath.row].done
         
         //saveItems()
         
@@ -81,20 +85,27 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Aggiungi", style: .default) { (action) in
             // cosa avviene quando l'utente clicca sul bottone "Aggiungi voce" nella UIAlert
             
-            let itemToAdd = Item(context: self.context)
-            
-            if textField.text != "" {
-                itemToAdd.title = textField.text!
+            if let currentCategory = self.selectedCategory {
+                
+                do {
+                    try self.realm.write {
+                        let itemToAdd = Item()
+                        if textField.text != "" {
+                            itemToAdd.title = textField.text!
+                        }
+                        else {
+                            itemToAdd.title = "Nuova voce"                              //Se il campo con il nome della nuova voce è vuoto, lo imposto come "Nuova voce"
+                        }
+                        
+                        itemToAdd.done = false
+                        currentCategory.items.append(itemToAdd)
+                    }
+                } catch {
+                    print("Error saving to realm, \(error)")
+                }
             }
-            else {
-                itemToAdd.title = "Nuova voce"                              //Se il campo con il nome della nuova voce è vuoto, lo imposto come "Nuova voce"
-            }
             
-            itemToAdd.done = false
-            itemToAdd.parentCategory = self.selectedCategory
-            self.itemArray.append(itemToAdd)                                //aggiungo il nuovo oggetto all'array
-            
-            self.saveItems()
+            self.tableView.reloadData()
         }
         
         alert.addTextField { (alertTextField) in
@@ -106,60 +117,62 @@ class TodoListViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
         
     }
+
+
+//MARK: - metodi manipolazione del modello
+
+// Metodo di salvataggio degli oggetti
+
+//    func saveItems(item: Item) {
+//        do {
+//            try realm.write()   {
+//                realm.add(item)
+//            }                                           //salvo nel DB i dati contenuti nel context
+//        } catch {
+//            print("Error saving to realm: \(error)")
+//        }
+//
+//        tableView.reloadData()                                              //ricarico i dati nella tableView
+//    }
+
+// Metodo per il caricamento dei dati
+// Richiede in ingresso un parametro request di tipo NSFetchRequest.
+// Se non viene specificato, il parametro di default è Item.fetchRequest
+
+func loadItems() {
     
+    todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+    tableView.reloadData()
     
-    //MARK: - metodi manipolazione del modello
-    
-    // Metodo di salvataggio degli oggetti
-    
-    func saveItems() {
-        do {
-            try context.save()                                              //salvo nel DB i dati contenuti nel context
-        } catch {
-            print("Error saving context: \(error)")
-        }
-        
-        tableView.reloadData()                                              //ricarico i dati nella tableView
-    }
-    
-    // Metodo per il caricamento dei dati
-    // Richiede in ingresso un parametro request di tipo NSFetchRequest.
-    // Se non viene specificato, il parametro di default è Item.fetchRequest
-    
-    func loadItems() {
-        
-        itemArray = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
-        tableView.reloadData()
-        
-        //        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
-        //
-        //        if let additionalPredicate = predicate {
-        //            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
-        //        }
-        //        else {
-        //            request.predicate = categoryPredicate
-        //        }
-        //
-        //
-        //        do {
-        //            itemArray = try context.fetch(request)                          //Carico i dati che ho ottenuto nella itemArray
-        //        } catch {
-        //            print("Error fetching data from context: \(error)")
-        //        }
-        
-        //ricarico i dati nella tableView
-        
-    }
-    
-    
-    // Funzione di cancellazione dei dati
+    //        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
     //
-    //    func deleteItem() {
-    //        context.delete(itemArray[indexPath.row])
-    //        itemArray.remove(at: indexPath.row)
-    //    }
+    //        if let additionalPredicate = predicate {
+    //            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+    //        }
+    //        else {
+    //            request.predicate = categoryPredicate
+    //        }
+    //
+    //
+    //        do {
+    //            todoItems = try context.fetch(request)                          //Carico i dati che ho ottenuto nella todoItems
+    //        } catch {
+    //            print("Error fetching data from context: \(error)")
+    //        }
     
+    //ricarico i dati nella tableView
     
+}
+
+
+// Funzione di cancellazione dei dati
+//
+//    func deleteItem() {
+//        context.delete(todoItems[indexPath.row])
+//        todoItems.remove(at: indexPath.row)
+//    }
+
+
 }
 
 //MARK: - metodi della Search Bar
