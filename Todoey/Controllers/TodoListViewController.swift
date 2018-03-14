@@ -9,7 +9,7 @@
 import UIKit
 import RealmSwift
 
-class TodoListViewController: UITableViewController {
+class TodoListViewController: SwipeTableViewController {
     
     //MARK: - dichiarazione variabili di istanza:
     
@@ -32,6 +32,11 @@ class TodoListViewController: UITableViewController {
         
         super.viewDidLoad()
         
+        tableView.reloadData()
+        
+        tableView.rowHeight = 80.0
+
+        
     }
     
     //MARK: - metodi Datasource di tableView:
@@ -44,7 +49,7 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         if let item = todoItems?[indexPath.row] {
             
@@ -127,27 +132,37 @@ class TodoListViewController: UITableViewController {
         
     }
 
+    
+    
+    //MARK: - Metodo di caricamento degli elementi
 
-func loadItems() {
+    func loadItems() {
     
     todoItems = selectedCategory?.items.sorted(byKeyPath: "dateCreated", ascending: true)
     tableView.reloadData()
+}
+
+    //MARK: - Metodo di eliminazione degli elementi tramite Swipe
     
-    
+    override func updateModel(at indexPath: IndexPath) {
+        if let itemForDeletion = self.todoItems?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(itemForDeletion)
+                }
+            } catch {
+                print("Error deleting object in realm, \(error)")
+            }
+        }
+    }
+
 }
 
 
-// Funzione di cancellazione dei dati
-//
-//    func deleteItem() {
-//        context.delete(todoItems[indexPath.row])
-//        todoItems.remove(at: indexPath.row)
-//    }
 
 
-}
 
-//MARK: - metodi della Search Bar
+    //MARK: - metodi della Search Bar
 
 extension TodoListViewController: UISearchBarDelegate {
 

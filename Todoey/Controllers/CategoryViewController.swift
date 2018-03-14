@@ -9,7 +9,7 @@
 import UIKit
 import RealmSwift
 
-class CategoryViewController: UITableViewController {
+class CategoryViewController: SwipeTableViewController {
     
     //MARK: - dichiarazione variabili di istanza:
     
@@ -23,42 +23,7 @@ class CategoryViewController: UITableViewController {
         
         loadCategories()                    // carico dal realm l'elenco delle categorie
         
-        
-    }
-    
-    
-    //MARK: - azione aggiunta nuovo oggetto
-    
-    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
-        
-        var textField = UITextField()
-        
-        let alert = UIAlertController(title: "Aggiungi nuova Categoria", message: "", preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: "Aggiungi", style: .default) { (action) in
-            // cosa avviene quando l'utente clicca sul bottone "Aggiungi categoria" nella UIAlert
-            
-            let categoryToAdd = Category()
-            
-            if textField.text != "" {
-                categoryToAdd.name = textField.text!
-            }
-            else {
-                categoryToAdd.name = "Nuova categoria"
-            }
-    
-            self.save(category: categoryToAdd)
-        }
-        
-        alert.addTextField { (field) in
-            textField = field
-            textField.placeholder = "Crea una nuova categoria"
-        }
-        
-        alert.addAction(action)
-        
-        
-        present(alert, animated: true, completion: nil)
+        tableView.rowHeight = 80
         
     }
     
@@ -73,13 +38,11 @@ class CategoryViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categories?[indexPath.row].name ?? "Non hai ancora aggiunto una categoria"
         
         return cell
     }
-    
     
     
     //MARK: - metodi delegati di tableView
@@ -97,6 +60,40 @@ class CategoryViewController: UITableViewController {
     }
     
     
+    //MARK: - azione aggiunta nuovo oggetto
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textField = UITextField()
+        
+        let alert = UIAlertController(title: "Aggiungi Categoria", message: "", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Aggiungi", style: .default) { (action) in
+            // cosa avviene quando l'utente clicca sul bottone "Aggiungi categoria" nella UIAlert
+            
+            let categoryToAdd = Category()
+            
+            if textField.text != "" {
+                categoryToAdd.name = textField.text!
+            }
+            else {
+                categoryToAdd.name = "Nuova categoria"
+            }
+            
+            self.save(category: categoryToAdd)
+        }
+        
+        alert.addTextField { (field) in
+            textField = field
+            textField.placeholder = "Crea una nuova categoria"
+        }
+        
+        alert.addAction(action)
+        
+        
+        present(alert, animated: true, completion: nil)
+        
+    }
     //MARK: - metodi di manipolazione dati
     
     // Metodo di salvataggio delle categorie
@@ -115,14 +112,34 @@ class CategoryViewController: UITableViewController {
     
     
     // Metodo di caricamento delle categorie
-
+    
     func loadCategories() {
-
+        
         categories = realm.objects(Category.self)
-
+        
         tableView.reloadData()                                              //ricarico i dati nella tableView
-
+        
+    }
+    
+    // Metodo di eliminazione delle categorie (tramite Swipe)
+    
+    override func updateModel(at indexPath: IndexPath) {
+        
+        if let categoryForDeletion = self.categories?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(categoryForDeletion)
+                }
+            } catch {
+                print("Error deleting object in realm, \(error)")
+            }
+        }
     }
     
     
 }
+
+
+
+
+

@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		000F326C205668D80084E8AE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 000F326B205668D80084E8AE /* Main.storyboard */; };
 		00573F392057104800E33AD8 /* CategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00573F382057104800E33AD8 /* CategoryViewController.swift */; };
+		006C1A5D2059C14D0022F966 /* delete-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 006C1A5C2059C14D0022F966 /* delete-icon.png */; };
+		006C1A5F2059CDEF0022F966 /* SwipeTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 006C1A5E2059CDEF0022F966 /* SwipeTableViewController.swift */; };
 		00B05AB52058124E00E80CE1 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B05AB42058124E00E80CE1 /* Item.swift */; };
 		00B05AB72058125900E80CE1 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B05AB62058125900E80CE1 /* Category.swift */; };
 		00C46B9D2052772F00FAE6A5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00C46B9C2052772F00FAE6A5 /* AppDelegate.swift */; };
@@ -21,6 +23,8 @@
 /* Begin PBXFileReference section */
 		000F326B205668D80084E8AE /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		00573F382057104800E33AD8 /* CategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewController.swift; sourceTree = "<group>"; };
+		006C1A5C2059C14D0022F966 /* delete-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "delete-icon.png"; sourceTree = "<group>"; };
+		006C1A5E2059CDEF0022F966 /* SwipeTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeTableViewController.swift; sourceTree = "<group>"; };
 		00B05AB42058124E00E80CE1 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		00B05AB62058125900E80CE1 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		00C46B992052772E00FAE6A5 /* Todoey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Todoey.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -58,6 +62,7 @@
 		0075DB2C2055CE5F00D8EA7D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				006C1A5E2059CDEF0022F966 /* SwipeTableViewController.swift */,
 				00573F382057104800E33AD8 /* CategoryViewController.swift */,
 				00C46B9E2052772F00FAE6A5 /* TodoListViewController.swift */,
 			);
@@ -98,6 +103,7 @@
 				0075DB2E2055CE7900D8EA7D /* Data Model */,
 				0075DB2C2055CE5F00D8EA7D /* Controllers */,
 				00C46BA32052772F00FAE6A5 /* Assets.xcassets */,
+				006C1A5C2059C14D0022F966 /* delete-icon.png */,
 				00C46BA52052772F00FAE6A5 /* LaunchScreen.storyboard */,
 				00C46BA82052772F00FAE6A5 /* Info.plist */,
 				000F326A205668480084E8AE /* Views */,
@@ -187,6 +193,7 @@
 				000F326C205668D80084E8AE /* Main.storyboard in Resources */,
 				00C46BA72052772F00FAE6A5 /* LaunchScreen.storyboard in Resources */,
 				00C46BA42052772F00FAE6A5 /* Assets.xcassets in Resources */,
+				006C1A5D2059C14D0022F966 /* delete-icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,11 +242,13 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Todoey/Pods-Todoey-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Realm/Realm.framework",
 				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/SwipeCellKit/SwipeCellKit.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Realm.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwipeCellKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -257,6 +266,7 @@
 				00573F392057104800E33AD8 /* CategoryViewController.swift in Sources */,
 				00C46B9F2052772F00FAE6A5 /* TodoListViewController.swift in Sources */,
 				00C46B9D2052772F00FAE6A5 /* AppDelegate.swift in Sources */,
+				006C1A5F2059CDEF0022F966 /* SwipeTableViewController.swift in Sources */,
 				00B05AB72058125900E80CE1 /* Category.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
