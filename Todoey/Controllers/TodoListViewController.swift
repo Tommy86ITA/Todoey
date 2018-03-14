@@ -48,7 +48,7 @@ class TodoListViewController: UITableViewController {
         
         if let item = todoItems?[indexPath.row] {
             
-            cell.textLabel?.text = todoItems?[indexPath.row].title
+            cell.textLabel?.text = item.title
             
             // Ternary operator ==>
             // value = condition ? valueIfTrue : valueIfFalse
@@ -66,9 +66,18 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        //todoItems[indexPath.row].done = !todoItems[indexPath.row].done
-        
-        //saveItems()
+        if let item = todoItems?[indexPath.row] {
+            do {
+                try realm.write {
+                    item.done = !item.done
+                    // se volessi eseguire un'operazione di cancellazione userei realm.delete(item)
+                }
+            } catch {
+                print("Error saving to realm, \(error)")
+            }
+        }
+
+        tableView.reloadData()
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -98,6 +107,7 @@ class TodoListViewController: UITableViewController {
                         }
                         
                         itemToAdd.done = false
+                        //itemToAdd.dateCreated = Date()
                         currentCategory.items.append(itemToAdd)
                     }
                 } catch {
@@ -177,41 +187,37 @@ func loadItems() {
 
 //MARK: - metodi della Search Bar
 
-//extension TodoListViewController: UISearchBarDelegate {
-//
-//    // Metodo di ricerca
-//
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//
-//        let request : NSFetchRequest<Item> = Item.fetchRequest()
-//
-//        //let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)   //cerca gli elementi che all'interno dell'attributo title CONTENGONO ciò che viene scritto nella searchbar (%@). [cd] indica che la ricerca non fa distinzione fra maiuscole e minuscole (non case-sensitive) e non considera i diacritici (é,è,à, ō...)
-//
-//
-//        //let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)                              //scelgo di ordinare i risultati disponendoli secondo il titolo in ordine alfabetico
-//
-//        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)                   //imposto la query...
-//        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]                         //...e la regola di ordinamento dei risultati
-//
-//        loadItems(with: request)                                                                            //Carico i dati che corrispondono alla mia request
-//
-//        tableView.reloadData()                                                                              //ricarico i dati nella tableView
-//
-//    }
-//
-//
-//    // Metodo di ritorno
-//
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//
-//        if searchBar.text?.count == 0 {                                 // se nella searchBar non c'è nessun carattere....
-//            loadItems()                                                 // ricarica i dati
-//
-//            DispatchQueue.main.async {                                  // richiedo di utilizzare in modo asincorono il main thread tramite la dispatch queue
-//                searchBar.resignFirstResponder()                        // la searchBar cessa di essere il firstResponder, avvisando l'OS che può nascondere la tastiera
-//
-//            }
-//        }
-//    }
-//}
+extension TodoListViewController: UISearchBarDelegate {
+
+    // Metodo di ricerca
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+
+        todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "title", ascending: true)
+        
+        //let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)   //cerca gli elementi che all'interno dell'attributo title CONTENGONO ciò che viene scritto nella searchbar (%@). [cd] indica che la ricerca non fa distinzione fra maiuscole e minuscole (non case-sensitive) e non considera i diacritici (é,è,à, ō...)
+
+
+        //let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)  //scelgo di ordinare i risultati disponendoli secondo il titolo in ordine alfabetico
+
+        
+        tableView.reloadData()                                             //ricarico i dati nella tableView
+
+    }
+
+
+    // Metodo di ritorno
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+
+        if searchBar.text?.count == 0 {                                 // se nella searchBar non c'è nessun carattere....
+            loadItems()                                                 // ricarica i dati
+
+            DispatchQueue.main.async {                                  // richiedo di utilizzare in modo asincorono il main thread tramite la dispatch queue
+                searchBar.resignFirstResponder()                        // la searchBar cessa di essere il firstResponder, avvisando l'OS che può nascondere la tastiera
+
+            }
+        }
+    }
+}
 
