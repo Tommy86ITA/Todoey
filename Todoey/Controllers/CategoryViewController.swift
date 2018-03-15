@@ -19,12 +19,10 @@ class CategoryViewController: SwipeTableViewController {
     var categories : Results<Category>?     // inizializzo il contenitore per l'elenco delle categorie
     
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         loadCategories()                    // carico dal realm l'elenco delle categorie
-        
-        
     }
     
     
@@ -33,20 +31,17 @@ class CategoryViewController: SwipeTableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return categories?.count ?? 1   //se categories.count è nil, allora ritorna 1 (Nil Coalescing Operator)
-        
     }
+    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
-        
         if let category = categories?[indexPath.row] {
             cell.textLabel?.text = category.name
-            
             guard let categoryColor = UIColor(hexString: category.cellColor) else { fatalError() }
             cell.backgroundColor = categoryColor
             cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
-            
         }
         return cell
     }
@@ -72,21 +67,17 @@ class CategoryViewController: SwipeTableViewController {
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         
         var textField = UITextField()
-        
         let alert = UIAlertController(title: "Aggiungi Categoria", message: "", preferredStyle: .alert)
-        
         let action = UIAlertAction(title: "Aggiungi", style: .default) { (action) in
             // cosa avviene quando l'utente clicca sul bottone "Aggiungi categoria" nella UIAlert
             
             let categoryToAdd = Category()
-            
             if textField.text != "" {
                 categoryToAdd.name = textField.text!
             }
             else {
                 categoryToAdd.name = "Nuova categoria"
             }
-            
             categoryToAdd.cellColor = UIColor.randomFlat.hexValue()
             self.save(category: categoryToAdd)
         }
@@ -97,11 +88,11 @@ class CategoryViewController: SwipeTableViewController {
         }
         
         alert.addAction(action)
-        
-        
         present(alert, animated: true, completion: nil)
         
     }
+    
+    
     //MARK: - metodi di manipolazione dati
     
     // Metodo di salvataggio delle categorie
@@ -114,7 +105,6 @@ class CategoryViewController: SwipeTableViewController {
         } catch {
             print("Error saving to realm \(error)")
         }
-        
         tableView.reloadData()
     }
     
@@ -128,6 +118,7 @@ class CategoryViewController: SwipeTableViewController {
         tableView.reloadData()                                              //ricarico i dati nella tableView
         
     }
+    
     
     // Metodo di eliminazione delle categorie (tramite Swipe)
     

@@ -17,9 +17,7 @@ class TodoListViewController: SwipeTableViewController {
     @IBOutlet weak var searchBar: UISearchBar!
     
     let realm = try! Realm()                    // inizializzo il punto di accesso al realm
-    
     var todoItems: Results<Item>?               // inizializzo il contenitore per l'elenco degli elementi
-    
     var selectedCategory : Category? {
         didSet{
             loadItems()               // carico i dati solo nel momento in cui a selectedCategory viene assegnato un valore
@@ -27,25 +25,27 @@ class TodoListViewController: SwipeTableViewController {
     }
     
     
-    // MARK: - viewDidLoad Function:
-    
-    override func viewDidLoad() {
-        
-        super.viewDidLoad()
-        
-        tableView.reloadData()
-        
-    }
+    //MARK: - viewWillAppear Function
     
     override func viewWillAppear(_ animated: Bool) {
         
         title = selectedCategory?.name
-        
         guard let colorHex = selectedCategory?.cellColor  else { fatalError() }
-        
         updateNavBar(withHexCode: colorHex)
-        
     }
+    
+    
+    
+    //MARK: - viewDidLoad Function:
+    
+    override func viewDidLoad() {
+        
+        super.viewDidLoad()
+        tableView.reloadData() 
+    }
+    
+
+    //MARK: - willMove Function:
     
     override func willMove(toParentViewController parent: UIViewController?) {
         
@@ -59,13 +59,10 @@ class TodoListViewController: SwipeTableViewController {
     func updateNavBar(withHexCode colorHexCode: String) {
         
         guard let navBar = navigationController?.navigationBar else { fatalError("Navigation controller does not exist!") }
-        
         guard let navBarColor = UIColor(hexString: colorHexCode) else { fatalError() }
-        
         navBar.barTintColor = navBarColor
         navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
         navBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)]
-        
         searchBar.barTintColor = navBarColor
         
     }
@@ -77,23 +74,18 @@ class TodoListViewController: SwipeTableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return todoItems?.count ?? 1
-        
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
-        
         if let item = todoItems?[indexPath.row] {
-            
             cell.textLabel?.text = item.title
-            
-            if let color = UIColor(hexString: selectedCategory!.cellColor)?.darken(byPercentage: CGFloat(indexPath.row)/CGFloat(todoItems!.count))      // indice corrente / indici totali
+            if let color = UIColor(hexString: selectedCategory!.cellColor)?.darken(byPercentage: CGFloat(indexPath.row)/CGFloat(todoItems!.count) * 0.35)      // (indice corrente / indici totali) * 0.35
             {
                 cell.backgroundColor = color
                 cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
             }
-            
             // Ternary operator ==>
             // value = condition ? valueIfTrue : valueIfFalse
             cell.accessoryType = item.done ? .checkmark : .none
@@ -101,7 +93,6 @@ class TodoListViewController: SwipeTableViewController {
         else {
             cell.textLabel?.text = "Non hai ancora aggiunto nessun elemento"
         }
-        
         return cell
     }
     
@@ -120,10 +111,7 @@ class TodoListViewController: SwipeTableViewController {
             } catch {
                 print("Error saving to realm, \(error)")
             }
-        
-        
         tableView.reloadData()
-        
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
@@ -134,14 +122,12 @@ class TodoListViewController: SwipeTableViewController {
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         
         var textField = UITextField()
-        
         let alert = UIAlertController(title: "Aggiungi nuovo Elemento a Todoey", message: "", preferredStyle: .alert)
         
         let action = UIAlertAction(title: "Aggiungi", style: .default) { (action) in
             // cosa avviene quando l'utente clicca sul bottone "Aggiungi voce" nella UIAlert
             
             guard let currentCategory = self.selectedCategory else { fatalError() }
-                
                 do {
                     try self.realm.write {
                         let itemToAdd = Item()
@@ -149,7 +135,7 @@ class TodoListViewController: SwipeTableViewController {
                             itemToAdd.title = textField.text!
                         }
                         else {
-                            itemToAdd.title = "Nuova voce"                              //Se il campo con il nome della nuova voce è vuoto, lo imposto come "Nuova voce"
+                            itemToAdd.title = "Nuovo elemento"                              //Se il campo con il nome della nuova voce è vuoto, lo imposto come "Nuova voce"
                         }
                         itemToAdd.dateCreated = Date()
                         itemToAdd.done = false
@@ -158,19 +144,14 @@ class TodoListViewController: SwipeTableViewController {
                 } catch {
                     print("Error saving to realm, \(error)")
                 }
-            
-            
             self.tableView.reloadData()
         }
-        
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Crea un nuovo elemento"
             textField = alertTextField
         }
         alert.addAction(action)
-        
         present(alert, animated: true, completion: nil)
-        
     }
     
     
@@ -188,6 +169,7 @@ class TodoListViewController: SwipeTableViewController {
     //MARK: - Metodo di eliminazione degli elementi tramite Swipe
     
     override func updateModel(at indexPath: IndexPath) {
+        
         if let itemForDeletion = self.todoItems?[indexPath.row] {
             do {
                 try self.realm.write {
@@ -218,7 +200,6 @@ extension TodoListViewController: UISearchBarDelegate {
         //let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)  //scelgo di ordinare i risultati disponendoli secondo il titolo in ordine alfabetico
         
         tableView.reloadData()                                             //ricarico i dati nella tableView
-        
     }
     
     
@@ -228,7 +209,6 @@ extension TodoListViewController: UISearchBarDelegate {
         
         if searchBar.text?.count == 0 {                                 // se nella searchBar non c'è nessun carattere....
             loadItems()                                                 // ricarica i dati
-            
             DispatchQueue.main.async {                                  // richiedo di utilizzare in modo asincorono il main thread tramite la dispatch queue
                 searchBar.resignFirstResponder()                        // la searchBar cessa di essere il firstResponder, avvisando l'OS che può nascondere la tastiera
                 
