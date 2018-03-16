@@ -146,6 +146,10 @@ class TodoListViewController: SwipeTableViewController {
                 }
             self.tableView.reloadData()
         }
+        let cancelAction = UIAlertAction(title: "Annulla", style: .cancel) { (action) in
+            alert.dismiss(animated: true, completion: nil)
+        }
+        alert.addAction(cancelAction)
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Crea un nuovo elemento"
             textField = alertTextField

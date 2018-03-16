@@ -81,7 +81,11 @@ class CategoryViewController: SwipeTableViewController {
             categoryToAdd.cellColor = UIColor.randomFlat.hexValue()
             self.save(category: categoryToAdd)
         }
+        let cancelAction = UIAlertAction(title: "Annulla", style: .cancel) { (action) in
+            alert.dismiss(animated: true, completion: nil)
+        }
         
+        alert.addAction(cancelAction)
         alert.addTextField { (field) in
             textField = field
             textField.placeholder = "Crea una nuova categoria"
@@ -114,9 +118,7 @@ class CategoryViewController: SwipeTableViewController {
     func loadCategories() {
         
         categories = realm.objects(Category.self)
-        
         tableView.reloadData()                                              //ricarico i dati nella tableView
-        
     }
     
     
@@ -134,11 +136,4 @@ class CategoryViewController: SwipeTableViewController {
             }
         }
     }
-    
-    
 }
-
-
-
-
-
