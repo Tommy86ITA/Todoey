@@ -24,6 +24,7 @@ class TodoListViewController: SwipeTableViewController {
         }
     }
     
+    let impact = UIImpactFeedbackGenerator()
     
     //MARK: - viewWillAppear Function
     
@@ -79,6 +80,8 @@ class TodoListViewController: SwipeTableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        let longPressedRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_ :)))
+        
         if let item = todoItems?[indexPath.row] {
             cell.textLabel?.text = item.title
             if let color = UIColor(hexString: selectedCategory!.cellColor)?.darken(byPercentage: CGFloat(indexPath.row)/CGFloat(todoItems!.count) * 0.35)      // (indice corrente / indici totali) * 0.35
@@ -89,10 +92,9 @@ class TodoListViewController: SwipeTableViewController {
             // Ternary operator ==>
             // value = condition ? valueIfTrue : valueIfFalse
             cell.accessoryType = item.done ? .checkmark : .none
+            cell.addGestureRecognizer(longPressedRecognizer)
         }
-        else {
-            cell.textLabel?.text = "Non hai ancora aggiunto nessun elemento"
-        }
+
         return cell
     }
     
@@ -152,6 +154,7 @@ class TodoListViewController: SwipeTableViewController {
         alert.addAction(cancelAction)
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Crea un nuovo elemento"
+            textField.autocorrectionType = .yes
             textField = alertTextField
         }
         alert.addAction(action)
@@ -159,6 +162,43 @@ class TodoListViewController: SwipeTableViewController {
     }
     
     
+    //MARK: - metodo di gestione UIGestureRecognizer (longPressed)
+    
+    @objc func longPressed(_ recognizer: UIGestureRecognizer) {
+        
+        impact.impactOccurred()
+        if recognizer.state == UIGestureRecognizerState.ended {
+            
+            
+            
+            let longPressedLocation = recognizer.location(in: self.tableView)
+            if let pressedIndexPath = self.tableView.indexPathForRow(at: longPressedLocation) {
+                var textField = UITextField()
+                let alert = UIAlertController(title: "Rinomina Elemento", message: "", preferredStyle: .alert)
+                let action = UIAlertAction(title: "Rinomina", style: .default, handler: { (action) -> Void in
+                    // cosa avviene quando l'utente clicca sul bottone "Aggiungi categoria" nella UIAlert
+                    
+                    let itemToEdit = self.todoItems?[pressedIndexPath.row]
+                    self.saveChanges(item: itemToEdit!, newTitle: textField.text!)
+                    
+                })
+                
+                let cancelAction = UIAlertAction(title: "Annulla", style: .cancel, handler: { (action) in
+                    alert.dismiss(animated: true, completion: nil)
+                })
+                
+                alert.addAction(cancelAction)
+                alert.addTextField { (field) in
+                    textField = field
+                    textField.text = self.todoItems![pressedIndexPath.row].title
+                    textField.autocorrectionType = .yes
+                }
+                
+                alert.addAction(action)
+                present(alert, animated: true, completion: nil)
+            }
+        }
+    }
     
     //MARK: - Metodo di caricamento degli elementi
     
@@ -168,6 +208,19 @@ class TodoListViewController: SwipeTableViewController {
         tableView.reloadData()
     }
     
+    // Metodo di modifica attributi della categoria
+    
+    func saveChanges(item: Item, newTitle: String) {
+        do {
+            try realm.write {
+                item.title = newTitle
+            }
+        } catch {
+            print("Error saving to realm \(error)")
+        }
+        tableView.reloadData()
+        
+    }
     
     
     //MARK: - Metodo di eliminazione degli elementi tramite Swipe

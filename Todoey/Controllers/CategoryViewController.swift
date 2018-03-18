@@ -14,11 +14,15 @@ class CategoryViewController: SwipeTableViewController {
     
     //MARK: - dichiarazione variabili di istanza:
     
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     let realm = try! Realm()                // inizializzo il punto di accesso al realm
     
     var categories : Results<Category>?     // inizializzo il contenitore per l'elenco delle categorie
     
+    let impact = UIImpactFeedbackGenerator()
     
+    //MARK: - app lifecycle:
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,11 +41,14 @@ class CategoryViewController: SwipeTableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        let longPressedRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_ :)))
+        
         if let category = categories?[indexPath.row] {
             cell.textLabel?.text = category.name
             guard let categoryColor = UIColor(hexString: category.cellColor) else { fatalError() }
             cell.backgroundColor = categoryColor
             cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
+            cell.addGestureRecognizer(longPressedRecognizer)
         }
         return cell
     }
@@ -89,11 +96,50 @@ class CategoryViewController: SwipeTableViewController {
         alert.addTextField { (field) in
             textField = field
             textField.placeholder = "Crea una nuova categoria"
+            textField.autocorrectionType = .yes
         }
         
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
         
+    }
+    
+    
+    //MARK: - metodo di gestione UIGestureRecognizer (longPressed)
+    
+    @objc func longPressed(_ recognizer: UIGestureRecognizer) {
+        
+        impact.impactOccurred()
+        if recognizer.state == UIGestureRecognizerState.ended {
+            
+            
+            let longPressedLocation = recognizer.location(in: self.tableView)
+            if let pressedIndexPath = self.tableView.indexPathForRow(at: longPressedLocation) {
+                var textField = UITextField()
+                let alert = UIAlertController(title: "Rinomina Categoria", message: "", preferredStyle: .alert)
+                let action = UIAlertAction(title: "Rinomina", style: .default, handler: { (action) -> Void in
+                    // cosa avviene quando l'utente clicca sul bottone "Rinomina" nella UIAlert
+                    
+                    let categoryToEdit = self.categories?[pressedIndexPath.row]
+                    self.saveChanges(category: categoryToEdit!, newName: textField.text!)
+                    
+                })
+                
+                let cancelAction = UIAlertAction(title: "Annulla", style: .cancel, handler: { (action) in
+                    alert.dismiss(animated: true, completion: nil)
+                })
+                
+                alert.addAction(cancelAction)
+                alert.addTextField { (field) in
+                    textField = field
+                    textField.text = self.categories?[pressedIndexPath.row].name
+                    textField.autocorrectionType = .yes
+                }
+                
+                alert.addAction(action)
+                present(alert, animated: true, completion: nil)
+            }
+        }
     }
     
     
@@ -110,6 +156,20 @@ class CategoryViewController: SwipeTableViewController {
             print("Error saving to realm \(error)")
         }
         tableView.reloadData()
+    }
+    
+    // Metodo di modifica attributi della categoria
+    
+    func saveChanges(category: Category , newName: String) {
+        do {
+            try realm.write {
+                category.name = newName
+            }
+        } catch {
+            print("Error saving to realm \(error)")
+        }
+        tableView.reloadData()
+        
     }
     
     
