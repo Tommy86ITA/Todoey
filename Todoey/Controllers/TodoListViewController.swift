@@ -155,7 +155,7 @@ class TodoListViewController: SwipeTableViewController {
         alert.addAction(cancelAction)
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Crea un nuovo elemento"
-            textField.autocorrectionType = .yes
+            alertTextField.autocorrectionType = .yes
             textField = alertTextField
         }
         alert.addAction(action)
