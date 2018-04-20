@@ -14,20 +14,25 @@ class CategoryViewController: SwipeTableViewController {
     
     //MARK: - dichiarazione variabili di istanza:
     
-    @IBOutlet weak var searchBar: UISearchBar!
+    @IBOutlet weak var categorySearchBar: UISearchBar!
+    
     
     let realm = try! Realm()                // inizializzo il punto di accesso al realm
     
     var categories : Results<Category>?     // inizializzo il contenitore per l'elenco delle categorie
     
-    let impact = UIImpactFeedbackGenerator()
-    
+   
     //MARK: - app lifecycle:
     
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()                    // carico dal realm l'elenco delle categorie
+        
+        categorySearchBar.delegate = self
+        categorySearchBar.placeholder = "Cerca fra le categorie"
     }
+    
+    
     
     
     //MARK: - metodi Datasource di tableView
@@ -86,6 +91,7 @@ class CategoryViewController: SwipeTableViewController {
                 categoryToAdd.name = "Nuova categoria"
             }
             categoryToAdd.cellColor = UIColor.randomFlat.hexValue()
+            categoryToAdd.dateCreated = Date()
             self.save(category: categoryToAdd)
         }
         let cancelAction = UIAlertAction(title: "Annulla", style: .cancel) { (action) in
@@ -109,35 +115,11 @@ class CategoryViewController: SwipeTableViewController {
     
     @objc func longPressed(_ recognizer: UIGestureRecognizer) {
         
-        impact.impactOccurred()
+
         if recognizer.state == UIGestureRecognizerState.ended {
-            
-            
             let longPressedLocation = recognizer.location(in: self.tableView)
             if let pressedIndexPath = self.tableView.indexPathForRow(at: longPressedLocation) {
-                var textField = UITextField()
-                let alert = UIAlertController(title: "Rinomina Categoria", message: "", preferredStyle: .alert)
-                let action = UIAlertAction(title: "Rinomina", style: .default, handler: { (action) -> Void in
-                    // cosa avviene quando l'utente clicca sul bottone "Rinomina" nella UIAlert
-                    
-                    let categoryToEdit = self.categories?[pressedIndexPath.row]
-                    self.saveChanges(category: categoryToEdit!, newName: textField.text!)
-                    
-                })
-                
-                let cancelAction = UIAlertAction(title: "Annulla", style: .cancel, handler: { (action) in
-                    alert.dismiss(animated: true, completion: nil)
-                })
-                
-                alert.addAction(cancelAction)
-                alert.addTextField { (field) in
-                    textField = field
-                    textField.text = self.categories?[pressedIndexPath.row].name
-                    textField.autocorrectionType = .yes
-                }
-                
-                alert.addAction(action)
-                present(alert, animated: true, completion: nil)
+                editModel(at: pressedIndexPath)
             }
         }
     }
@@ -158,7 +140,8 @@ class CategoryViewController: SwipeTableViewController {
         tableView.reloadData()
     }
     
-    // Metodo di modifica attributi della categoria
+    
+    // Metodo di salvataggio alle modifica attributi della categoria
     
     func saveChanges(category: Category , newName: String) {
         do {
@@ -193,6 +176,64 @@ class CategoryViewController: SwipeTableViewController {
                 }
             } catch {
                 print("Error deleting object in realm, \(error)")
+            }
+        }
+    }
+    
+    
+    // Metodo di modifica (rinominazione) delle categorie (tramite Swipe)
+    
+    override func editModel(at indexPath: IndexPath) {
+        
+        
+        var textField = UITextField()
+        let alert = UIAlertController(title: "Rinomina Categoria", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "Rinomina", style: .default, handler: { (action) -> Void in
+            // cosa avviene quando l'utente clicca sul bottone "Rinomina" nella UIAlert
+            
+            let categoryToEdit = self.categories?[indexPath.row]
+            self.saveChanges(category: categoryToEdit!, newName: textField.text!)
+            
+        })
+        
+        let cancelAction = UIAlertAction(title: "Annulla", style: .cancel, handler: { (action) in
+            alert.dismiss(animated: true, completion: nil)
+        })
+        
+        alert.addAction(cancelAction)
+        alert.addTextField { (field) in
+            textField = field
+            textField.text = self.categories?[indexPath.row].name
+            textField.autocorrectionType = .yes
+            
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
+
+    
+}
+
+
+
+extension CategoryViewController: UISearchBarDelegate {
+    
+    // Metodo di ricerca
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        categories = categories?.filter("name CONTAINS[cd] %@", categorySearchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
+        
+        tableView.reloadData()
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        if searchBar.text?.count == 0 {                                 // se nella searchBar non c'è nessun carattere....
+            loadCategories()                                            // ricarica i dati
+            DispatchQueue.main.async {                                  // richiedo di utilizzare in modo asincorono il main thread tramite la dispatch queue
+                searchBar.resignFirstResponder()                        // la searchBar cessa di essere il firstResponder, avvisando l'OS che può nascondere la tastiera
+                
             }
         }
     }

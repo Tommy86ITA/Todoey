@@ -20,11 +20,10 @@ class TodoListViewController: SwipeTableViewController {
     var todoItems: Results<Item>?               // inizializzo il contenitore per l'elenco degli elementi
     var selectedCategory : Category? {
         didSet{
-            loadItems()               // carico i dati solo nel momento in cui a selectedCategory viene assegnato un valore
+            loadItems()                         // carico i dati solo nel momento in cui a selectedCategory viene assegnato un valore
         }
     }
     
-    let impact = UIImpactFeedbackGenerator()
     
     //MARK: - viewWillAppear Function
     
@@ -42,7 +41,9 @@ class TodoListViewController: SwipeTableViewController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        tableView.reloadData() 
+        tableView.reloadData()
+        
+        searchBar.placeholder = "Cerca fra gli elementi"
     }
     
 
@@ -64,7 +65,6 @@ class TodoListViewController: SwipeTableViewController {
         navBar.barTintColor = navBarColor
         navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
         navBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)]
-        navBar.titleTextAttributes = navBar.largeTitleTextAttributes
         searchBar.barTintColor = navBarColor
         
     }
@@ -155,7 +155,7 @@ class TodoListViewController: SwipeTableViewController {
         alert.addAction(cancelAction)
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Crea un nuovo elemento"
-            alertTextField.autocorrectionType = .yes
+            textField.autocorrectionType = .yes
             textField = alertTextField
         }
         alert.addAction(action)
@@ -167,36 +167,11 @@ class TodoListViewController: SwipeTableViewController {
     
     @objc func longPressed(_ recognizer: UIGestureRecognizer) {
         
-        impact.impactOccurred()
         if recognizer.state == UIGestureRecognizerState.ended {
-            
-            
-            
+
             let longPressedLocation = recognizer.location(in: self.tableView)
             if let pressedIndexPath = self.tableView.indexPathForRow(at: longPressedLocation) {
-                var textField = UITextField()
-                let alert = UIAlertController(title: "Rinomina Elemento", message: "", preferredStyle: .alert)
-                let action = UIAlertAction(title: "Rinomina", style: .default, handler: { (action) -> Void in
-                    // cosa avviene quando l'utente clicca sul bottone "Aggiungi categoria" nella UIAlert
-                    
-                    let itemToEdit = self.todoItems?[pressedIndexPath.row]
-                    self.saveChanges(item: itemToEdit!, newTitle: textField.text!)
-                    
-                })
-                
-                let cancelAction = UIAlertAction(title: "Annulla", style: .cancel, handler: { (action) in
-                    alert.dismiss(animated: true, completion: nil)
-                })
-                
-                alert.addAction(cancelAction)
-                alert.addTextField { (field) in
-                    textField = field
-                    textField.text = self.todoItems![pressedIndexPath.row].title
-                    textField.autocorrectionType = .yes
-                }
-                
-                alert.addAction(action)
-                present(alert, animated: true, completion: nil)
+                editModel(at: pressedIndexPath)
             }
         }
     }
@@ -238,6 +213,34 @@ class TodoListViewController: SwipeTableViewController {
             }
         }
     }
+    
+    override func editModel(at indexPath: IndexPath) {
+        
+        var textField = UITextField()
+        let alert = UIAlertController(title: "Rinomina elemento", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "Rinomina", style: .default, handler: { (action) -> Void in
+            // cosa avviene quando l'utente clicca sul bottone "Rinomina" nella UIAlert
+            
+            let itemToEdit = self.todoItems?[indexPath.row]
+            self.saveChanges(item: itemToEdit!, newTitle: textField.text!)
+            
+        })
+        
+        let cancelAction = UIAlertAction(title: "Annulla", style: .cancel, handler: { (action) in
+            alert.dismiss(animated: true, completion: nil)
+        })
+        
+        alert.addAction(cancelAction)
+        alert.addTextField { (field) in
+            textField = field
+            textField.text = self.todoItems?[indexPath.row].title
+            textField.autocorrectionType = .yes
+            
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }    
     
 }
 
