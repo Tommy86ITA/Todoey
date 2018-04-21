@@ -24,22 +24,26 @@ class CategoryViewController: SwipeTableViewController {
    
     //MARK: - app lifecycle:
     
+    override func viewWillAppear(_ animated: Bool) {
+        
+        loadCategories()                    // carico dal realm l'elenco delle categorie
+
+    }
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadCategories()                    // carico dal realm l'elenco delle categorie
-        
+
         categorySearchBar.delegate = self
         categorySearchBar.placeholder = "Cerca fra le categorie"
     }
     
-    
-    
-    
+
     //MARK: - metodi Datasource di tableView
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return categories?.count ?? 1   //se categories.count è nil, allora ritorna 1 (Nil Coalescing Operator)
+        return categories?.count ?? 1   //se categories.count == nil, allora ritorna 1 (Nil Coalescing Operator)
     }
     
     
@@ -50,9 +54,11 @@ class CategoryViewController: SwipeTableViewController {
         
         if let category = categories?[indexPath.row] {
             cell.textLabel?.text = category.name
+            cell.detailTextLabel?.text = ("\(category.numberOfItems)")
             guard let categoryColor = UIColor(hexString: category.cellColor) else { fatalError() }
             cell.backgroundColor = categoryColor
             cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
+            cell.detailTextLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
             cell.addGestureRecognizer(longPressedRecognizer)
         }
         return cell
@@ -92,6 +98,7 @@ class CategoryViewController: SwipeTableViewController {
             }
             categoryToAdd.cellColor = UIColor.randomFlat.hexValue()
             categoryToAdd.dateCreated = Date()
+            categoryToAdd.numberOfItems = 0
             self.save(category: categoryToAdd)
         }
         let cancelAction = UIAlertAction(title: "Annulla", style: .cancel) { (action) in

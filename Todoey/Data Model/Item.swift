@@ -19,7 +19,6 @@ class Item: Object {
     
     //MARK: - Relazioni
 
-    var parentCategory = LinkingObjects(fromType: Category.self, property: "items") // Stabilisco la relazione inversa fra elementi e categorie
-    
+    var parentCategory = LinkingObjects(fromType: Category.self, property: "items")             // Stabilisco la relazione inversa fra elementi e categorie
     
 }

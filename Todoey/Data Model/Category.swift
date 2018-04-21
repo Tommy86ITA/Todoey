@@ -15,8 +15,9 @@ class Category: Object {
     @objc dynamic var name : String = ""
     @objc dynamic var cellColor : String = ""
     @objc dynamic var dateCreated : Date?
+    @objc dynamic var numberOfItems : Int = 0
     
     //MARK: - Relazioni
-    let items = List<Item>()   // Stabilisco la relazione diretta fra categoria e elementi
+    let items = List<Item>()                        // Stabilisco la relazione diretta fra categoria e elementi
     
 }

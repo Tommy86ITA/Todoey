@@ -52,6 +52,7 @@ class TodoListViewController: SwipeTableViewController {
     override func willMove(toParentViewController parent: UIViewController?) {
         
         updateNavBar(withHexCode: "1D9BF6")
+        
     }
     
     
@@ -143,6 +144,7 @@ class TodoListViewController: SwipeTableViewController {
                         itemToAdd.dateCreated = Date()
                         itemToAdd.done = false
                         currentCategory.items.append(itemToAdd)
+                        currentCategory.numberOfItems = currentCategory.items.count
                     }
                 } catch {
                     print("Error saving to realm, \(error)")
@@ -207,10 +209,12 @@ class TodoListViewController: SwipeTableViewController {
             do {
                 try self.realm.write {
                     self.realm.delete(itemForDeletion)
+                    self.selectedCategory?.numberOfItems = self.todoItems!.count
                 }
             } catch {
                 print("Error deleting object in realm, \(error)")
             }
+            
         }
     }
     
