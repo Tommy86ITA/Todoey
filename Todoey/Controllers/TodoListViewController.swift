@@ -70,6 +70,20 @@ class TodoListViewController: SwipeTableViewController {
         
     }
     
+    //MARK: - dateDecoder Function
+    
+    func dateDecoder(dateToDecode: Date) -> String {
+    
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = DateFormatter.Style.long
+        dateFormatter.dateFormat = "dd/MM/yyyy h:mm a Z"
+        dateFormatter.timeStyle = DateFormatter.Style.medium
+        
+        let decodedDate = dateFormatter.string(from: dateToDecode)
+        
+        return decodedDate
+    }
+    
     
     
     //MARK: - metodi Datasource di tableView:
@@ -86,10 +100,13 @@ class TodoListViewController: SwipeTableViewController {
         
         if let item = todoItems?[indexPath.row] {
             cell.textLabel?.text = item.title
+            cell.detailTextLabel?.text = "Creato: \(dateDecoder(dateToDecode: item.dateCreated!))"
             if let color = UIColor(hexString: selectedCategory!.cellColor)?.darken(byPercentage: CGFloat(indexPath.row)/CGFloat(todoItems!.count) * 0.35)      // (indice corrente / indici totali) * 0.35
             {
                 cell.backgroundColor = color
                 cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+                cell.detailTextLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+                
             }
             // Ternary operator ==>
             // value = condition ? valueIfTrue : valueIfFalse
