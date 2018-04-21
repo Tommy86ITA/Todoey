@@ -33,7 +33,10 @@ class CategoryViewController: SwipeTableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        guard let navBar = navigationController?.navigationBar else { fatalError("Navigation controller does not exist!") }
+        navBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor : UIColor.flatWhite]
+        
         categorySearchBar.delegate = self
         categorySearchBar.placeholder = "Cerca fra le categorie"
     }

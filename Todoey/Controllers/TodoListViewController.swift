@@ -55,8 +55,7 @@ class TodoListViewController: SwipeTableViewController {
         
     }
     
-    
-    
+
     //MARK: - NavBar setup
     
     func updateNavBar(withHexCode colorHexCode: String) {
@@ -66,6 +65,7 @@ class TodoListViewController: SwipeTableViewController {
         navBar.barTintColor = navBarColor
         navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
         navBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)]
+        navBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)]
         searchBar.barTintColor = navBarColor
         
     }
