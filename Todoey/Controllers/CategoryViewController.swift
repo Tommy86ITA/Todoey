@@ -48,7 +48,8 @@ class CategoryViewController: SwipeTableViewController {
         
         return categories?.count ?? 1   //se categories.count == nil, allora ritorna 1 (Nil Coalescing Operator)
     }
-    
+
+   
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
