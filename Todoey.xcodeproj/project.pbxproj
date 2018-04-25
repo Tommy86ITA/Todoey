@@ -137,7 +137,6 @@
 				00C46B962052772E00FAE6A5 /* Frameworks */,
 				00C46B972052772E00FAE6A5 /* Resources */,
 				9AD95795CD80AC4F2DD4897D /* [CP] Embed Pods Frameworks */,
-				0A75355CBF5CC2628682147C /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -196,21 +195,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0A75355CBF5CC2628682147C /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Todoey/Pods-Todoey-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		9AD95795CD80AC4F2DD4897D /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

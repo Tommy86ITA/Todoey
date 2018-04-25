@@ -2,33 +2,44 @@ PODS:
   - ChameleonFramework/Default (2.1.0)
   - ChameleonFramework/Swift (2.1.0):
     - ChameleonFramework/Default
-  - Realm (3.1.1):
-    - Realm/Headers (= 3.1.1)
-  - Realm/Headers (3.1.1)
-  - RealmSwift (3.1.1):
-    - Realm (= 3.1.1)
-  - SwipeCellKit (2.0.1)
+  - Realm (3.4.0):
+    - Realm/Headers (= 3.4.0)
+  - Realm/Headers (3.4.0)
+  - RealmSwift (3.4.0):
+    - Realm (= 3.4.0)
+  - SwipeCellKit (2.2.0)
 
 DEPENDENCIES:
   - ChameleonFramework/Swift (from `https://github.com/ViccAlexander/Chameleon.git`)
   - RealmSwift
-  - SwipeCellKit
+  - SwipeCellKit (from `https://github.com/SwipeCellKit/SwipeCellKit.git`, branch `develop`)
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Realm
+    - RealmSwift
 
 EXTERNAL SOURCES:
   ChameleonFramework:
     :git: https://github.com/ViccAlexander/Chameleon.git
+  SwipeCellKit:
+    :branch: develop
+    :git: https://github.com/SwipeCellKit/SwipeCellKit.git
 
 CHECKOUT OPTIONS:
   ChameleonFramework:
     :commit: 6dd284bde21ea2e7f9fd89bc36f40df16e16369d
     :git: https://github.com/ViccAlexander/Chameleon.git
+  SwipeCellKit:
+    :commit: 65d0532f1c53b986abee2b9519703bab4e16a790
+    :git: https://github.com/SwipeCellKit/SwipeCellKit.git
 
 SPEC CHECKSUMS:
   ChameleonFramework: d21a3cc247abfe5e37609a283a8238b03575cf64
-  Realm: 42d1c38a5b1bbcc828b48a7ce702cb86fc68adf4
-  RealmSwift: d31937ca6a6ee54acde64ec839523c0a3c04924b
-  SwipeCellKit: 76888d93d1843dc568fdf38fff21b15dbbcf6b28
+  Realm: 9527c7baa2260f3a3aad6823d2d71cafff9b046b
+  RealmSwift: f40a747beaea1cadde7dcef41ee5a34b3001677b
+  SwipeCellKit: 8ae09401e1137566b187980d824310129233c959
 
-PODFILE CHECKSUM: 06ac07afe6a5beb459336935f78f1a4fabfd4a5b
+PODFILE CHECKSUM: 82464574dd18a03bac7041a4dc7080a5537571c4
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.0
