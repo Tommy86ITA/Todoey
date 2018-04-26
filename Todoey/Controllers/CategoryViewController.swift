@@ -16,20 +16,22 @@ class CategoryViewController: SwipeTableViewController {
     
     @IBOutlet weak var categorySearchBar: UISearchBar!
     @IBOutlet weak var multiSelectionButton: UIBarButtonItem!
+    @IBOutlet weak var statusLabel: UIBarButtonItem!
+    @IBOutlet weak var deleteButton: UIBarButtonItem!
+    @IBOutlet weak var addButton: UIBarButtonItem!
     
     
     let realm = try! Realm()                // inizializzo il punto di accesso al realm
     
     var categories : Results<Category>?     // inizializzo il contenitore per l'elenco delle categorie
     
-   
+    
     //MARK: - app lifecycle:
     
     override func viewWillAppear(_ animated: Bool) {
         
-        multiSelectionButton.isEnabled = false
         loadCategories()                    // carico dal realm l'elenco delle categorie
-
+        
     }
     
     
@@ -45,23 +47,15 @@ class CategoryViewController: SwipeTableViewController {
         categorySearchBar.placeholder = "Cerca fra le categorie"
     }
     
-
+    
     //MARK: - metodi Datasource di tableView
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if categories?.count != nil {
-            multiSelectionButton.isEnabled = true
-            return categories!.count
-        } else {
-            multiSelectionButton.isEnabled = false
-            return 1
-        }
-        
-        //return categories?.count ?? 1   //se categories.count == nil, allora ritorna 1 (Nil Coalescing Operator)
+        return categories?.count ?? 1   //se categories.count == nil, allora ritorna 1 (Nil Coalescing Operator)
     }
-
-   
+    
+    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
@@ -95,14 +89,6 @@ class CategoryViewController: SwipeTableViewController {
         }
     }
     
-   
-    //MARK: - comando di refresh dei dati (debug-only)
-    
-    @IBAction func refreshButtonTapped(_ sender: UIBarButtonItem) {
-        
-        loadCategories()
-        navigationController?.toolbar.isHidden = true
-    }
     
     
     //MARK: - azione aggiunta nuovo oggetto
@@ -142,8 +128,34 @@ class CategoryViewController: SwipeTableViewController {
         
     }
     
+    //MARK: - gestione della selezione multipla
+    
     @IBAction func multiSelectionButtonTapped(_ sender: UIBarButtonItem) {
-        print("MultiSelect Pressed!")
+        
+//        if tableView.isEditing == false {
+//            tableView.isEditing = true
+//            tableView.setEditing(true, animated: true)
+//            tableView.allowsMultipleSelectionDuringEditing = true
+//            multiSelectionButton.title = "Annulla"
+//
+//
+//
+//        } else {
+//            tableView.setEditing(false, animated: true)
+//            multiSelectionButton.title = "Modifica"
+//            tableView.allowsMultipleSelectionDuringEditing = false
+//
+//
+//        }
+        
+
+        
+    }
+    
+    //MARK: - metodo di eliminazione multipla
+    
+    @IBAction func deleteButtonTapped(_ sender: UIBarButtonItem) {
+        
     }
     
     
@@ -151,7 +163,7 @@ class CategoryViewController: SwipeTableViewController {
     
     @objc func longPressed(_ recognizer: UIGestureRecognizer) {
         
-
+        
         if recognizer.state == UIGestureRecognizerState.ended {
             let longPressedLocation = recognizer.location(in: self.tableView)
             if let pressedIndexPath = self.tableView.indexPathForRow(at: longPressedLocation) {
@@ -174,6 +186,7 @@ class CategoryViewController: SwipeTableViewController {
             print("Error saving to realm \(error)")
         }
         tableView.reloadData()
+        statusBarUpdater()
     }
     
     
@@ -188,6 +201,7 @@ class CategoryViewController: SwipeTableViewController {
             print("Error saving to realm \(error)")
         }
         tableView.reloadData()
+        statusBarUpdater()
         
     }
     
@@ -198,17 +212,10 @@ class CategoryViewController: SwipeTableViewController {
         
         categories = realm.objects(Category.self)
         categories = categories?.sorted(byKeyPath: "dateCreated", ascending: true)
-        print(categories!.count)
-        
-//        if categories!.count == 0 {
-//            multiSelectionButton.isEnabled = true
-//        }
-//        else {
-//            multiSelectionButton.isEnabled = false
-//        }
-        
+        //print(categories!.count)
         
         tableView.reloadData()                                              //ricarico i dati nella tableView
+        statusBarUpdater()
     }
     
     
@@ -225,13 +232,13 @@ class CategoryViewController: SwipeTableViewController {
                 print("Error deleting object in realm, \(error)")
             }
         }
+        statusBarUpdater()
     }
     
     
     // Metodo di modifica (rinominazione) delle categorie (tramite Swipe)
     
     override func editModel(at indexPath: IndexPath) {
-        
         
         var textField = UITextField()
         let alert = UIAlertController(title: "Rinomina Categoria", message: "", preferredStyle: .alert)
@@ -258,12 +265,30 @@ class CategoryViewController: SwipeTableViewController {
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
         tableView.reloadData()
+        statusBarUpdater()
     }
-
-
     
+    
+    // Metodo di aggiornamento della status bar
+    
+    func statusBarUpdater () {
+        
+        if categories?.count == 0 {
+            statusLabel.title = "Premi + per creare una categoria."
+            multiSelectionButton.isEnabled = false
+        }
+        else {
+            var itemTotal : Int = 0
+            for (category) in categories! {
+                itemTotal = itemTotal + category.items.count
+            }
+            
+            let categoriesTotal : Int = categories!.count
+            
+            statusLabel.title = "\(itemTotal) elementi in \(categoriesTotal) categorie"
+        }
+    }
 }
-
 
 
 extension CategoryViewController: UISearchBarDelegate {

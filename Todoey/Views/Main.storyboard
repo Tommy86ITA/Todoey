@@ -55,12 +55,17 @@
                         </connections>
                     </tableView>
                     <toolbarItems>
-                        <barButtonItem systemItem="refresh" id="J2p-tS-r96">
+                        <barButtonItem enabled="NO" systemItem="trash" id="J2p-tS-r96" userLabel="Delete Button">
+                            <color key="tintColor" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <connections>
-                                <action selector="refreshButtonTapped:" destination="EfY-UP-PZ4" id="u14-cg-LbB"/>
+                                <action selector="deleteButtonTapped:" destination="EfY-UP-PZ4" id="Fjq-7w-xOF"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem style="plain" systemItem="flexibleSpace" id="5JD-BW-ckY"/>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="f9Y-sG-KIp"/>
+                        <barButtonItem title="Category count" width="191.5" id="Idd-pL-qId">
+                            <color key="tintColor" cocoaTouchSystemColor="darkTextColor"/>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="gme-CM-1gJ"/>
                         <barButtonItem systemItem="add" id="Nl1-Mp-ArX">
                             <connections>
                                 <action selector="addButtonPressed:" destination="EfY-UP-PZ4" id="uvl-km-fMD"/>
@@ -77,8 +82,10 @@
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="addButton" destination="Nl1-Mp-ArX" id="tjH-IL-I5S"/>
                         <outlet property="categorySearchBar" destination="4aC-fz-bf4" id="inG-2X-QvT"/>
                         <outlet property="multiSelectionButton" destination="eNd-fN-1WD" id="nfp-Ld-n1h"/>
+                        <outlet property="statusLabel" destination="Idd-pL-qId" id="GiA-u3-Nn6"/>
                         <segue destination="5Fx-EE-OSg" kind="show" identifier="goToItems" id="nca-v0-6Bu"/>
                     </connections>
                 </tableViewController>
@@ -103,7 +110,7 @@
                             </connections>
                         </searchBar>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" textLabel="osh-Vc-kUc" detailTextLabel="Sdp-VE-pcS" rowHeight="80" style="IBUITableViewCellStyleSubtitle" id="Y4o-Jl-5JU" customClass="SwipeTableViewCell" customModule="SwipeCellKit">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="Cell" textLabel="osh-Vc-kUc" detailTextLabel="Sdp-VE-pcS" rowHeight="80" style="IBUITableViewCellStyleSubtitle" id="Y4o-Jl-5JU" customClass="SwipeTableViewCell" customModule="SwipeCellKit">
                                 <rect key="frame" x="0.0" y="72" width="375" height="80"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Y4o-Jl-5JU" id="3AH-K9-Kak">
