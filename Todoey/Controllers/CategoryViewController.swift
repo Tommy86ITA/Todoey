@@ -15,6 +15,7 @@ class CategoryViewController: SwipeTableViewController {
     //MARK: - dichiarazione variabili di istanza:
     
     @IBOutlet weak var categorySearchBar: UISearchBar!
+    @IBOutlet weak var multiSelectionButton: UIBarButtonItem!
     
     
     let realm = try! Realm()                // inizializzo il punto di accesso al realm
@@ -26,6 +27,7 @@ class CategoryViewController: SwipeTableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         
+        multiSelectionButton.isEnabled = false
         loadCategories()                    // carico dal realm l'elenco delle categorie
 
     }
@@ -33,6 +35,8 @@ class CategoryViewController: SwipeTableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //loadCategories()
         
         guard let navBar = navigationController?.navigationBar else { fatalError("Navigation controller does not exist!") }
         navBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor : UIColor.flatWhite]
@@ -46,7 +50,15 @@ class CategoryViewController: SwipeTableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return categories?.count ?? 1   //se categories.count == nil, allora ritorna 1 (Nil Coalescing Operator)
+        if categories?.count != nil {
+            multiSelectionButton.isEnabled = true
+            return categories!.count
+        } else {
+            multiSelectionButton.isEnabled = false
+            return 1
+        }
+        
+        //return categories?.count ?? 1   //se categories.count == nil, allora ritorna 1 (Nil Coalescing Operator)
     }
 
    
@@ -58,7 +70,7 @@ class CategoryViewController: SwipeTableViewController {
         
         if let category = categories?[indexPath.row] {
             cell.textLabel?.text = category.name
-            cell.detailTextLabel?.text = ("\(category.numberOfItems)")
+            cell.detailTextLabel?.text = "\(category.items.count)"
             guard let categoryColor = UIColor(hexString: category.cellColor) else { fatalError() }
             cell.backgroundColor = categoryColor
             cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
@@ -81,6 +93,15 @@ class CategoryViewController: SwipeTableViewController {
         if let indexPath = tableView.indexPathForSelectedRow {
             destinationVC.selectedCategory = categories?[indexPath.row]
         }
+    }
+    
+   
+    //MARK: - comando di refresh dei dati (debug-only)
+    
+    @IBAction func refreshButtonTapped(_ sender: UIBarButtonItem) {
+        
+        loadCategories()
+        navigationController?.toolbar.isHidden = true
     }
     
     
@@ -119,6 +140,10 @@ class CategoryViewController: SwipeTableViewController {
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
         
+    }
+    
+    @IBAction func multiSelectionButtonTapped(_ sender: UIBarButtonItem) {
+        print("MultiSelect Pressed!")
     }
     
     
@@ -172,6 +197,17 @@ class CategoryViewController: SwipeTableViewController {
     func loadCategories() {
         
         categories = realm.objects(Category.self)
+        categories = categories?.sorted(byKeyPath: "dateCreated", ascending: true)
+        print(categories!.count)
+        
+//        if categories!.count == 0 {
+//            multiSelectionButton.isEnabled = true
+//        }
+//        else {
+//            multiSelectionButton.isEnabled = false
+//        }
+        
+        
         tableView.reloadData()                                              //ricarico i dati nella tableView
     }
     
@@ -221,7 +257,9 @@ class CategoryViewController: SwipeTableViewController {
         
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
+        tableView.reloadData()
     }
+
 
     
 }

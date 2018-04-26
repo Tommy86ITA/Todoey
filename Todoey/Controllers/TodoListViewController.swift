@@ -53,6 +53,7 @@ class TodoListViewController: SwipeTableViewController {
         
         updateNavBar(withHexCode: "1D9BF6")
         
+        
     }
     
 
@@ -231,7 +232,6 @@ class TodoListViewController: SwipeTableViewController {
             } catch {
                 print("Error deleting object in realm, \(error)")
             }
-            
         }
     }
     
