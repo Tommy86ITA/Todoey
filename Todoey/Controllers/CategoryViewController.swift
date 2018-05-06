@@ -31,15 +31,14 @@ class CategoryViewController: SwipeTableViewController {
     override func viewWillAppear(_ animated: Bool) {
         
         loadCategories()                    // carico dal realm l'elenco delle categorie
+        tableView.isEditing = false
         
     }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        //loadCategories()
-        
+
         guard let navBar = navigationController?.navigationBar else { fatalError("Navigation controller does not exist!") }
         navBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor : UIColor.flatWhite]
         
@@ -67,9 +66,14 @@ class CategoryViewController: SwipeTableViewController {
             cell.detailTextLabel?.text = "\(category.items.count)"
             guard let categoryColor = UIColor(hexString: category.cellColor) else { fatalError() }
             cell.backgroundColor = categoryColor
+            let selectedView = UIView()
+            selectedView.backgroundColor = categoryColor
+            cell.selectedBackgroundView = selectedView
             cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
             cell.detailTextLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
             cell.addGestureRecognizer(longPressedRecognizer)
+            
+            
         }
         return cell
     }
@@ -78,8 +82,19 @@ class CategoryViewController: SwipeTableViewController {
     //MARK: - metodi delegati di tableView
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: "goToItems", sender: self)
+        if tableView.isEditing {
+            guard let selectedCell = tableView.cellForRow(at: indexPath) else { fatalError() }
+
+            print(selectedCell)
+
+            
+        } else {
+                performSegue(withIdentifier: "goToItems", sender: self)
+        }
     }
+    
+    
+    //MARK: - metodo prepare for segue
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destinationVC = segue.destination as! TodoListViewController
@@ -131,26 +146,24 @@ class CategoryViewController: SwipeTableViewController {
     //MARK: - gestione della selezione multipla
     
     @IBAction func multiSelectionButtonTapped(_ sender: UIBarButtonItem) {
-        
-//        if tableView.isEditing == false {
-//            tableView.isEditing = true
-//            tableView.setEditing(true, animated: true)
-//            tableView.allowsMultipleSelectionDuringEditing = true
-//            multiSelectionButton.title = "Annulla"
-//
-//
-//
-//        } else {
-//            tableView.setEditing(false, animated: true)
-//            multiSelectionButton.title = "Modifica"
-//            tableView.allowsMultipleSelectionDuringEditing = false
-//
-//
-//        }
+
+        if tableView.isEditing == false {
+            tableView.isEditing = true
+            tableView.setEditing(true, animated: true)
+            tableView.allowsMultipleSelectionDuringEditing = true
+            multiSelectionButton.title = "Annulla"
+
+
+        } else {
+            tableView.setEditing(false, animated: true)
+            multiSelectionButton.title = "Modifica"
+            tableView.allowsMultipleSelectionDuringEditing = false
+
+        }
         
 
-        
     }
+    
     
     //MARK: - metodo di eliminazione multipla
     
@@ -162,7 +175,6 @@ class CategoryViewController: SwipeTableViewController {
     //MARK: - metodo di gestione UIGestureRecognizer (longPressed)
     
     @objc func longPressed(_ recognizer: UIGestureRecognizer) {
-        
         
         if recognizer.state == UIGestureRecognizerState.ended {
             let longPressedLocation = recognizer.location(in: self.tableView)
@@ -290,6 +302,7 @@ class CategoryViewController: SwipeTableViewController {
     }
 }
 
+//MARK: - Estensione per i metodi delegati della searchbar
 
 extension CategoryViewController: UISearchBarDelegate {
     
