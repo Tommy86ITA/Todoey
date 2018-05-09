@@ -73,7 +73,7 @@
                         </barButtonItem>
                     </toolbarItems>
                     <navigationItem key="navigationItem" title="Todoey" id="ewO-SX-9rW">
-                        <barButtonItem key="rightBarButtonItem" title="Modifica" id="eNd-fN-1WD">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Modifica" id="eNd-fN-1WD">
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <action selector="multiSelectionButtonTapped:" destination="EfY-UP-PZ4" id="uGQ-FR-yC4"/>

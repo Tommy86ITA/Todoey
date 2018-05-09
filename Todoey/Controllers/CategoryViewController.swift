@@ -147,19 +147,19 @@ class CategoryViewController: SwipeTableViewController {
     
     @IBAction func multiSelectionButtonTapped(_ sender: UIBarButtonItem) {
 
-        if tableView.isEditing == false {
-            tableView.isEditing = true
-            tableView.setEditing(true, animated: true)
-            tableView.allowsMultipleSelectionDuringEditing = true
-            multiSelectionButton.title = "Annulla"
-
-
-        } else {
-            tableView.setEditing(false, animated: true)
-            multiSelectionButton.title = "Modifica"
-            tableView.allowsMultipleSelectionDuringEditing = false
-
-        }
+//        if tableView.isEditing == false {
+//            tableView.isEditing = true
+//            tableView.setEditing(true, animated: true)
+//            tableView.allowsMultipleSelectionDuringEditing = true
+//            multiSelectionButton.title = "Annulla"
+//
+//
+//        } else {
+//            tableView.setEditing(false, animated: true)
+//            multiSelectionButton.title = "Modifica"
+//            tableView.allowsMultipleSelectionDuringEditing = false
+//
+//        }
         
 
     }
